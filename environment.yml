@@ -1,0 +1,12 @@
+name: latex-ocr-llama
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10  # A common and stable version for ML projects
+  - pip
+  - pillow       # For image handling (crucial for OCR)
+  - requests     # To communicate with the local Ollama server
+  - pip:
+    - streamlit  # For the Streamlit web application interface
+    - python-dotenv # For managing configuration/API keys

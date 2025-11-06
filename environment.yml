@@ -10,3 +10,4 @@ dependencies:
   - pip:
     - streamlit  # For the Streamlit web application interface
     - python-dotenv # For managing configuration/API keys
+    - Ollama

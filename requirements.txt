@@ -1,0 +1,5 @@
+streamlit
+ollama
+pillow
+requests
+python-dotenv

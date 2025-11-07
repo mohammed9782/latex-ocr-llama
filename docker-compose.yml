@@ -1,0 +1,50 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_server
+    # ports:
+    #   - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    # Ensure the container runs the Ollama server process
+    command: ["serve"]
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - app_network
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    container_name: ollama_pull_model
+    volumes:
+      - ollama_data:/root/.ollama
+    # wait for the server to accept requests, then pull the model
+    command: ["sh", "-c", "until ollama list >/dev/null 2>&1; do echo 'waiting for ollama server...'; sleep 2; done; ollama pull llama3.2-vision"]
+    depends_on:
+      - ollama
+    networks:
+      - app_network
+
+  streamlit-app:
+    build: .
+    container_name: latex_ocr_app
+    ports:
+      - "8501:8501"
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+      LLM_MODEL: llama3.2-vision
+    depends_on:
+      - ollama-pull
+    networks:
+      - app_network
+
+volumes:
+  ollama_data:
+
+networks:
+  app_network:
+    driver: bridge

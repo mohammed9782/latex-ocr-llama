@@ -2,8 +2,8 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama_server
-    # ports:
-    #   - "11434:11434"
+    ports:
+      - "11435:11434"
     volumes:
       - ollama_data:/root/.ollama
     # Ensure the container runs the Ollama server process
@@ -18,12 +18,16 @@ services:
       - app_network
 
   ollama-pull:
-    image: ollama/ollama:latest
+    build:
+      context: ./tools/ollama-puller
     container_name: ollama_pull_model
     volumes:
       - ollama_data:/root/.ollama
-    # wait for the server to accept requests, then pull the model
-    command: ["sh", "-c", "until ollama list >/dev/null 2>&1; do echo 'waiting for ollama server...'; sleep 2; done; ollama pull llama3.2-vision"]
+    # The helper image runs /wait-and-pull.sh (script copies MODEL and MAX from env)
+    environment:
+      MODEL: llama3.2-vision
+      MAX: 60
+      OLLAMA_HOST: http://ollama:11434
     depends_on:
       - ollama
     networks:
